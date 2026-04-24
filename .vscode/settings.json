@@ -6,4 +6,15 @@
     "workbench.editor.customLabels.patterns": {
         "**/mod.rs": "${dirname}/mod.rs"
     },
+    // Enables Rust-Analyzer support for `rustc` crates.
+    "rust-analyzer.rustc.source": "discover",
+    // Show dependency types while fuzzy searching, including types from `rustc` crates.
+    "rust-analyzer.workspace.symbol.search.scope": "workspace_and_dependencies",
+
+    "rust-analyzer.check.overrideCommand": [
+        "bevy_lint",
+        "--workspace",
+        "--all-targets",
+        "--message-format=json-diagnostic-rendered-ansi",
+    ]
 }
