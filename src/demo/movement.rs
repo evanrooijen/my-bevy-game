@@ -21,16 +21,9 @@ use crate::{AppSystems, PausableSystems};
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
         FixedUpdate,
-        (apply_movement)
+        (apply_movement, apply_screen_wrap.after(apply_movement))
             .chain()
             .in_set(AppSystems::Update)
-            .in_set(PausableSystems),
-    );
-    app.add_systems(
-        FixedUpdate,
-        (apply_screen_wrap)
-            .chain()
-            .in_set(AppSystems::PostUpdate)
             .in_set(PausableSystems),
     );
 }
@@ -78,23 +71,25 @@ fn apply_screen_wrap(
     window: Single<&Window, With<PrimaryWindow>>,
     mut query: Query<(&Transform, &mut KinematicCharacterController), With<ScreenWrap>>,
 ) {
-    let size = window.size();
-    let half = size / 2.0;
+    let buffer = Vec2::new(80.0, 20.0); // tweak this to taste
+
+    let half = Vec2::new(window.width() / 2.0, window.height() / 2.0);
+    let bounds = half + buffer;
 
     for (transform, mut controller) in &mut query {
         let pos = transform.translation.xy();
         let mut wrapped = pos;
 
-        if pos.x > half.x {
-            wrapped.x = -half.x;
-        } else if pos.x < -half.x {
-            wrapped.x = half.x;
+        if pos.x > bounds.x {
+            wrapped.x = -bounds.x + (pos.x - bounds.x);
+        } else if pos.x < -bounds.x {
+            wrapped.x = bounds.x + (pos.x + bounds.x);
         }
 
-        if pos.y > half.y {
-            wrapped.y = -half.y;
-        } else if pos.y < -half.y {
-            wrapped.y = half.y;
+        if pos.y > bounds.y {
+            wrapped.y = -bounds.y + (pos.y - bounds.y);
+        } else if pos.y < -bounds.y {
+            wrapped.y = bounds.y + (pos.y + bounds.y);
         }
 
         if wrapped != pos {
