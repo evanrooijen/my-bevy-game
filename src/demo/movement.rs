@@ -19,6 +19,8 @@ use bevy_rapier2d::prelude::*;
 use crate::{AppSystems, PausableSystems};
 
 pub(super) fn plugin(app: &mut App) {
+    app.add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0));
+
     app.add_systems(
         FixedUpdate,
         (apply_movement, apply_screen_wrap.after(apply_movement))
