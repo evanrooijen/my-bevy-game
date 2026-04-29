@@ -4,6 +4,7 @@ use bevy::{
     image::{ImageLoaderSettings, ImageSampler},
     prelude::*,
 };
+use bevy_rapier2d::prelude::*;
 
 use crate::{
     AppSystems, PausableSystems,
@@ -55,12 +56,16 @@ pub fn player(
         },
         ScreenWrap,
         player_animation,
+        Collider::ball(16.0),
+        RigidBody::KinematicPositionBased,
+        KinematicCharacterController::default(),
+        ActiveEvents::COLLISION_EVENTS,
     )
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Reflect)]
 #[reflect(Component)]
-struct Player;
+pub struct Player;
 
 fn record_player_directional_input(
     input: Res<ButtonInput<KeyCode>>,
@@ -97,6 +102,8 @@ pub struct PlayerAssets {
     #[dependency]
     ducky: Handle<Image>,
     #[dependency]
+    pub coin: Handle<Image>,
+    #[dependency]
     pub steps: Vec<Handle<AudioSource>>,
 }
 
@@ -108,6 +115,12 @@ impl FromWorld for PlayerAssets {
                 "images/ducky.png",
                 |settings: &mut ImageLoaderSettings| {
                     // Use `nearest` image sampling to preserve pixel art style.
+                    settings.sampler = ImageSampler::nearest();
+                },
+            ),
+            coin: assets.load_with_settings(
+                "images/coin.png",
+                |settings: &mut ImageLoaderSettings| {
                     settings.sampler = ImageSampler::nearest();
                 },
             ),

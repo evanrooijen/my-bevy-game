@@ -16,5 +16,9 @@
         "--workspace",
         "--all-targets",
         "--message-format=json-diagnostic-rendered-ansi",
-    ]
+    ],
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.removeUnusedImports": "explicit"
+    }
 }

@@ -14,15 +14,23 @@
 //! consider using a [fixed timestep](https://github.com/bevyengine/bevy/blob/main/examples/movement/physics_in_fixed_timestep.rs).
 
 use bevy::{prelude::*, window::PrimaryWindow};
+use bevy_rapier2d::prelude::*;
 
 use crate::{AppSystems, PausableSystems};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(
-        Update,
-        (apply_movement, apply_screen_wrap)
+        FixedUpdate,
+        (apply_movement)
             .chain()
             .in_set(AppSystems::Update)
+            .in_set(PausableSystems),
+    );
+    app.add_systems(
+        FixedUpdate,
+        (apply_screen_wrap)
+            .chain()
+            .in_set(AppSystems::PostUpdate)
             .in_set(PausableSystems),
     );
 }
@@ -53,11 +61,12 @@ impl Default for MovementController {
 
 fn apply_movement(
     time: Res<Time>,
-    mut movement_query: Query<(&MovementController, &mut Transform)>,
+    mut query: Query<(&mut KinematicCharacterController, &mut MovementController)>,
 ) {
-    for (controller, mut transform) in &mut movement_query {
-        let velocity = controller.max_speed * controller.intent;
-        transform.translation += velocity.extend(0.0) * time.delta_secs();
+    let dt = time.delta_secs();
+
+    for (mut controller, movement) in &mut query {
+        controller.translation = Some(movement.intent * movement.max_speed * dt);
     }
 }
 
@@ -67,13 +76,33 @@ pub struct ScreenWrap;
 
 fn apply_screen_wrap(
     window: Single<&Window, With<PrimaryWindow>>,
-    mut wrap_query: Query<&mut Transform, With<ScreenWrap>>,
+    mut query: Query<(&Transform, &mut KinematicCharacterController), With<ScreenWrap>>,
 ) {
-    let size = window.size() + 256.0;
-    let half_size = size / 2.0;
-    for mut transform in &mut wrap_query {
-        let position = transform.translation.xy();
-        let wrapped = (position + half_size).rem_euclid(size) - half_size;
-        transform.translation = wrapped.extend(transform.translation.z);
+    let size = window.size();
+    let half = size / 2.0;
+
+    for (transform, mut controller) in &mut query {
+        let pos = transform.translation.xy();
+        let mut wrapped = pos;
+
+        if pos.x > half.x {
+            wrapped.x = -half.x;
+        } else if pos.x < -half.x {
+            wrapped.x = half.x;
+        }
+
+        if pos.y > half.y {
+            wrapped.y = -half.y;
+        } else if pos.y < -half.y {
+            wrapped.y = half.y;
+        }
+
+        if wrapped != pos {
+            let correction = wrapped - pos;
+
+            // 👇 KEY CHANGE: accumulate instead of overwrite
+            let current = controller.translation.unwrap_or(Vec2::ZERO);
+            controller.translation = Some(current + correction);
+        }
     }
 }

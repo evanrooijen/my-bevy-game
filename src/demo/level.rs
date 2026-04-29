@@ -5,7 +5,10 @@ use bevy::prelude::*;
 use crate::{
     asset_tracking::LoadResource,
     audio::music,
-    demo::player::{PlayerAssets, player},
+    demo::{
+        loot::coin,
+        player::{PlayerAssets, player},
+    },
     screens::Screen,
 };
 
@@ -43,6 +46,7 @@ pub fn spawn_level(
         DespawnOnExit(Screen::Gameplay),
         children![
             player(400.0, &player_assets, &mut texture_atlas_layouts),
+            coin(200.0, 150.0, &player_assets, &mut texture_atlas_layouts),
             (
                 Name::new("Gameplay Music"),
                 music(level_assets.music.clone())
