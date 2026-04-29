@@ -95,9 +95,6 @@ env:
   continuous_deployment_to_itch: false
   continuous_deployment_to_github_pages: false
 
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
-
 jobs:
   # Forward some environment variables as outputs of this job.
   # This is needed because the `env` context can't be used in the `if:` condition of a job:
@@ -118,7 +115,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Determine version number
         id: version
         # Use the input from workflow dispatch, or fall back to the Cargo.toml version
@@ -209,7 +206,7 @@ jobs:
 
       - name: Checkout repository
         if: ${{ env.is_platform_enabled == 'true' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           lfs: ${{ env.git_lfs }}
 

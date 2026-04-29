@@ -16,7 +16,6 @@ env:
   RUSTDOCFLAGS: -Dwarnings -Zshare-generics=y -Zthreads=0
   # Use the same Rust toolchain across jobs so they can share a cache.
   toolchain: nightly-2026-01-22
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   # Check formatting.
@@ -26,7 +25,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
@@ -44,7 +43,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
@@ -72,7 +71,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@master
@@ -101,7 +100,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Rust toolchain (plus bevy_lint)
         uses: TheBevyFlock/bevy_cli/bevy_lint@lint-v0.6.0
@@ -130,7 +129,7 @@ jobs:
     timeout-minutes: 40
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up environment
         run: echo "RUSTFLAGS=${RUSTFLAGS:+$RUSTFLAGS }-Zcodegen-backend=cranelift" >> "${GITHUB_ENV}"
@@ -161,7 +160,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up environment
         run: echo "RUSTFLAGS=${RUSTFLAGS:+$RUSTFLAGS }--cfg getrandom_backend=\"wasm_js\"" >> "${GITHUB_ENV}"
